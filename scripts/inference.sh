@@ -6,7 +6,7 @@
 #SBATCH --gres=gpu:a100l:1
 #SBATCH --ntasks-per-node=1                               # Ask for 1 GPU
 #SBATCH --mem=128G                                        # Ask for 10 GB of RAM
-#SBATCH --time=20:00:00                                   
+#SBATCH --time=20:00:00
 
 module load miniconda/3
 conda init
@@ -20,5 +20,4 @@ python inference.py \
    --do_predict \
    --mode orphan \
    --a 1 \
-   --t 10\
-   --repetition_penalty 1.0 \
+   --t 10 --repetition_penalty 1.0

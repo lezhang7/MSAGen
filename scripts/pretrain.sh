@@ -23,8 +23,7 @@ srun -N 1 --ntasks-per-node=1 --gres=gpu:$GPU_NUM --job-name=MSAT5_BASE \
     --save_total_limit 2 \
     --bf16 \
     --deepspeed ./config/base/ds_config.json \
-    --local_msadataset_path $PATH_TO_TRAINING_DATA \
- 
+    --local_msadataset_path $PATH_TO_TRAINING_DATA
 
 # torch.distributed.launch
 
@@ -53,7 +52,3 @@ srun -N 1 --ntasks-per-node=1 --gres=gpu:$GPU_NUM --job-name=MSAT5_BASE \
 #     --fp16 \
 #     --local_msadataset_path./datasets/MSA_10K \
 #     --logging_dir ./test1/runs/1
-
-    
-
-
