@@ -1,4 +1,4 @@
-# MSA-Augmentor codebase
+# MSAGen codebase
 
 <img src="https://p.ipic.vip/9l6wrb.png" alt="method (1)" style="zoom: 25%;" />
 
