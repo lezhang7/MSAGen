@@ -2,7 +2,8 @@
 
 <img src="https://p.ipic.vip/9l6wrb.png" alt="method (1)" style="zoom: 25%;" />
 
-codebase for paper **Enhancing the Protein Tertiary Structure Prediction by Multiple Sequence Alignment Generation** [arxiv](https://arxiv.org/abs/2306.01824)
+codebase for paper **MSA Generation with Seqs2Seqs Pretraining:
+Advancing Protein Structure Predictions** [arxiv]([https://arxiv.org/abs/2306.01824](https://openreview.net/pdf/fd516f23b421f9d03d5b978b03eded9900f0a462.pdf))
 
 ## Pretrain
 
