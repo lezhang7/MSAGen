@@ -26,12 +26,9 @@ from typing import Optional
 
 import math
 import datasets
-import numpy as np
-from datasets import load_dataset, load_metric
 
-from data.utils import MSADataSet,DataCollatorForMSA
+from data.utils import MSADataSet, DataCollatorForMSA
 from model.modeling_msa import MSA_AUGMENTOR
-
 
 
 import transformers
@@ -61,10 +58,9 @@ class ModelArguments:
     """
     Arguments pertaining to which model/config/tokenizer we are going to fine-tune from.
     """
-   
+
     model_name_or_path: str = field(
-        default=None,
-        metadata={"help": "Path to pretrained model or model identifier from huggingface.co/models"}
+        default=None, metadata={"help": "Path to pretrained model or model identifier from huggingface.co/models"}
     )
     config_name: Optional[str] = field(
         default=None, metadata={"help": "Pretrained config name or path if not the same as model_name"}
@@ -98,33 +94,23 @@ class DataTrainingArguments:
     """
     Arguments pertaining to what data we are going to input our model for training and eval.
     """
+
     dataset_name: Optional[str] = field(
         default=None, metadata={"help": "The name of the dataset to use (via the datasets library)."}
     )
     train_file: Optional[str] = field(default=None, metadata={"help": "path of input training data file ."})
-    
+
     validation_file: Optional[str] = field(
         default=None,
-        metadata={
-            "help": "An optional input evaluation data file to evaluate the metrics (sacreblue) on "
-        },
+        metadata={"help": "An optional input evaluation data file to evaluate the metrics (sacreblue) on "},
     )
     test_file: Optional[str] = field(
         default=None,
-        metadata={
-            "help": "An optional input test data file to evaluate the metrics (sacreblue) on " 
-        },
+        metadata={"help": "An optional input test data file to evaluate the metrics (sacreblue) on "},
     )
-    num_alignments:Optional[int]=field(
-        default=3,
-        metadata={
-            "help":"Number of sequences of input or target in each MSA"
-        }
-    )
-    overwrite_cache: bool = field(
-        default=False, metadata={"help": "Overwrite the cached training and evaluation sets"}
-    )
-    
+    num_alignments: Optional[int] = field(default=3, metadata={"help": "Number of sequences of input or target in each MSA"})
+    overwrite_cache: bool = field(default=False, metadata={"help": "Overwrite the cached training and evaluation sets"})
+
     preprocessing_num_workers: Optional[int] = field(
         default=None,
         metadata={"help": "The number of processes to use for the preprocessing."},
@@ -190,9 +176,7 @@ class DataTrainingArguments:
     )
     ignore_pad_token_for_loss: bool = field(
         default=True,
-        metadata={
-            "help": "Whether to ignore the tokens corresponding to padded labels in the loss computation or not."
-        },
+        metadata={"help": "Whether to ignore the tokens corresponding to padded labels in the loss computation or not."},
     )
     source_prefix: Optional[str] = field(
         default=None, metadata={"help": "A prefix to add before every source text (useful for T5 models)."}
@@ -209,7 +193,7 @@ class DataTrainingArguments:
     def __post_init__(self):
         if self.dataset_name is None and self.train_file is None and self.validation_file is None:
             raise ValueError("Need either a dataset name or a training/validation file.")
-    
+
         # accepting both json and jsonl file extensions, as
         # many jsonlines files actually have a .json extension
 
@@ -279,9 +263,9 @@ def main():
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     if data_args.max_train_samples is None:
         logger.info(f"Will train on full trainning dataset!!!")
-    train_dataset=MSADataSet(data_args,data_path=data_args.train_file,num_msa_files=data_args.max_train_samples)
-    eval_dataset=MSADataSet(data_args,data_path=data_args.validation_file,num_msa_files=data_args.max_eval_samples)
-    
+    train_dataset = MSADataSet(data_args, data_path=data_args.train_file, num_msa_files=data_args.max_train_samples)
+    eval_dataset = MSADataSet(data_args, data_path=data_args.validation_file, num_msa_files=data_args.max_eval_samples)
+
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 
@@ -290,7 +274,7 @@ def main():
     # Distributed training:
     # The .from_pretrained methods guarantee that only one local process can concurrently
     # download model & vocab.
-  
+
     tokenizer = T5Tokenizer.from_pretrained(
         model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
         cache_dir=model_args.cache_dir,
@@ -304,21 +288,20 @@ def main():
         revision=model_args.model_revision,
         use_auth_token=True if model_args.use_auth_token else None,
     )
-    
-    config.seq_per_msa=data_args.num_alignments
-    config.vocab_size=len(tokenizer)
+
+    config.seq_per_msa = data_args.num_alignments
+    config.vocab_size = len(tokenizer)
     model = MSA_AUGMENTOR(config=config)
     n_params = sum(dict((p.data_ptr(), p.numel()) for p in model.parameters()).values())
     logger.info(f"Training new model from scratch - Total size={n_params/2**20:.2f}M params")
     model.resize_token_embeddings(len(tokenizer))
-    msadata_collator=DataCollatorForMSA(tokenizer)
-    
+    msadata_collator = DataCollatorForMSA(tokenizer)
+
     # Set decoder_start_token_id
-    
+
     if model.config.decoder_start_token_id is None:
         raise ValueError("Make sure that `config.decoder_start_token_id` is correctly defined")
-    train_dataset=torch.load('')
-
+    train_dataset = torch.load("")
 
     trainer = Trainer(
         model=model,
@@ -340,9 +323,7 @@ def main():
         trainer.save_model()  # Saves the tokenizer too for easy upload
 
         metrics = train_result.metrics
-        max_train_samples = (
-            data_args.max_train_samples if data_args.max_train_samples is not None else len(train_dataset)
-        )
+        max_train_samples = data_args.max_train_samples if data_args.max_train_samples is not None else len(train_dataset)
         metrics["train_samples"] = min(max_train_samples, len(train_dataset))
 
         trainer.log_metrics("train", metrics)

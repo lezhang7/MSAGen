@@ -3,18 +3,16 @@
 #---- from alphafold2 run_docker.py -----#
 # The following flags allow us to make predictions on proteins that
 # would typically be too long to fit into GPU memory.
-  export TF_FORCE_UNIFIED_MEMORY=1
-  export XLA_PYTHON_CLIENT_MEM_FRACTION=4.0
+export TF_FORCE_UNIFIED_MEMORY=1
+export XLA_PYTHON_CLIENT_MEM_FRACTION=4.0
 # export XLA_PYTHON_CLIENT_PREALLOCATE=false
-
 
 #---------------------------------------------------------#
 ##### ===== All functions are defined here ====== #########
 #---------------------------------------------------------#
 
 # ----- usage ------ #
-usage()
-{
+usage() {
 	echo "alphafold2_sheng run_local v1.01 [Aug-11-2021] "
 	echo "    Local run for alphafold2_sheng. "
 	echo ""
@@ -54,7 +52,7 @@ usage()
 	echo ""
 	echo "***** home relevant **********"
 	echo "-H home           : home directory of alphafold2_sheng."
-	echo "                    [default = `dirname $0`] "
+	echo "                    [default = $(dirname $0)] "
 	echo ""
 	echo "-E python_env     : python environment of alphafold2_sheng. "
 	echo "                    [default = '~/miniconda/envs/af2' ]"
@@ -70,15 +68,13 @@ usage()
 curdir="$(pwd)"
 
 #-------- check usage -------#
-if [ $# -lt 1 ];
-then
+if [ $# -lt 1 ]; then
 	usage
 fi
 
 #---------------------------------------------------------#
 ##### ===== All arguments are defined here ====== #########
 #---------------------------------------------------------#
-
 
 # ----- get arguments ----- #
 #-> required arguments
@@ -91,25 +87,24 @@ data_root="/ssdcache/wangsheng/databases"
 out_root=""
 #-> optional arguments
 model_str="model_1,model_2,model_3,model_4,model_5"
-seq_or_msa="1"     #-> 1 for MSA and 0 for pure_seq
-template_date="2021-05-14"  #-> type 1900-01-01 to cancel out ALL templates
-run_amber="1"      #-> 1 for run amber 0 for not
+seq_or_msa="1"             #-> 1 for MSA and 0 for pure_seq
+template_date="2021-05-14" #-> type 1900-01-01 to cancel out ALL templates
+run_amber="1"              #-> 1 for run amber 0 for not
 a3m_type="all"
 gpu_device="0"
 #--| home relevant
-home=`dirname $0`  #-> home directory
+home=$(dirname $0) #-> home directory
 python_env="$HOME/miniconda/envs/af2"
 #-> parse arguments
-while getopts "i:a:d:o:m:P:T:A:M:g:H:E:" opt;
-do
+while getopts "i:a:d:o:m:P:T:A:M:g:H:E:" opt; do
 	case $opt in
 	#-> required arguments
 	i)
 		input=$OPTARG
 		;;
-        a)
-                decoys=$OPTARG
-                ;;
+	a)
+		decoys=$OPTARG
+		;;
 	d)
 		data_root=$OPTARG
 		;;
@@ -158,37 +153,33 @@ done
 ##### ===== Part 0: initial argument check ====== #########
 #---------------------------------------------------------#
 # ------ check home directory ---------- #
-if [ ! -d "$home" ]
-then
+if [ ! -d "$home" ]; then
 	echo "home directory $home not exist " >&2
 	exit 1
 fi
-home=`readlink -f $home`
+home=$(readlink -f $home)
 # ------ check python_env directory ---- #
 echo $python_env
-if [ ! -d "$python_env" ]
-then
+if [ ! -d "$python_env" ]; then
 	echo "python_env directory $python_env not exist. Use '/usr' by default. " >&2
 	python_env=/usr
 fi
-python_env=`readlink -f $python_env`
+python_env=$(readlink -f $python_env)
 #----------- check input -----------#
-if [ ! -s "$input" ]
-then
+if [ ! -s "$input" ]; then
 	echo "input $input not found !!" >&2
 	exit 1
 fi
-input=`readlink -f $input`
+input=$(readlink -f $input)
 #-> get query_name
-fulnam=`basename $input`
+fulnam=$(basename $input)
 relnam=${fulnam%.*}
 procnam=$relnam
 # ------ judge fasta or tgt -------- #
-filename=`basename $input`
+filename=$(basename $input)
 extension=${filename##*.}
 filename=${filename%.*}
-if [ "$extension" == "a3m" ]
-then
+if [ "$extension" == "a3m" ]; then
 	input_a3m=$input
 	A3M_or_NOT=1
 else
@@ -196,23 +187,20 @@ else
 	A3M_or_NOT=0
 fi
 # ------ check data root ----------------#
-if [ ! -d "$data_root" ]
-then
+if [ ! -d "$data_root" ]; then
 	echo "data_root $data_root not exist " >&2
 	exit 1
 fi
-data_root=`readlink -f $data_root`
+data_root=$(readlink -f $data_root)
 # ------ check output directory -------- #
-if [ "$out_root" == "" ]
-then
+if [ "$out_root" == "" ]; then
 	out_root=$curdir/${relnam}_AF2
 fi
 mkdir -p $out_root
-out_root=`readlink -f $out_root`
+out_root=$(readlink -f $out_root)
 
 # ============ initialization ============== #
 $home/util/Verify_FASTA $input $out_root/${relnam}.fasta
-
 
 #-------- usage ------------#
 # if [ $# -lt 4 ]
@@ -231,37 +219,37 @@ file=$out/${relnam}.fasta
 python=${python_env}/bin/python3
 export PATH="${python_env}/bin:$PATH"
 
-
 #-------- module load ------#
 #module load cuda10.1
-cuda=$(for i in `module avai | grep cuda`; do a=`echo $i | grep "^cuda"`; if [ "$a" != "" ]; then echo $a; break; fi ; done)
-if [ "$cuda" != "" ]
-then
+cuda=$(for i in $(module avai | grep cuda); do
+	a=$(echo $i | grep "^cuda")
+	if [ "$a" != "" ]; then
+		echo $a
+		break
+	fi
+done)
+if [ "$cuda" != "" ]; then
 	echo "cuda version is $cuda"
 	module load cuda10.1 #$cuda
 fi
 
 #-------- check nvcc -------#
-if ! command -v nvcc &> /dev/null
-then
+if ! command -v nvcc &>/dev/null; then
 	echo "COMMAND nvcc could not be found !! try module load"
 	exit 1
 else
 	nvcc -V
 fi
 
-
 #-------- pure_seq or MSA --#
-if [ $seq_or_msa -ne 1 ]
-then
+if [ $seq_or_msa -ne 1 ]; then
 	mkdir -p $out/msas
 	$home/util/Verify_FASTA $file $out/msas/uniref90_hits.a3m
 	cp $file $out/msas/mgnify_hits.a3m
 	cp $file $out/msas/bfd_uniclust_hits.a3m
 	touch $out/msas/pure_seq
 else
-	if [ -f $out/msas/pure_seq ]
-	then
+	if [ -f $out/msas/pure_seq ]; then
 		rm -f $out/msas/uniref90_hits.a3m
 		rm -f $out/msas/mgnify_hits.a3m
 		rm -f $out/msas/bfd_uniclust_hits.a3m
@@ -269,16 +257,14 @@ else
 	fi
 fi
 #-------- run with A3M -----#
-if [ $A3M_or_NOT -eq 1 ]
-then
+if [ $A3M_or_NOT -eq 1 ]; then
 	mkdir -p $out/msas
 	cp $input_a3m $out/msas/uniref90_hits.a3m
 	cp $file $out/msas/mgnify_hits.a3m
 	cp $file $out/msas/bfd_uniclust_hits.a3m
 	touch $out/msas/input_a3m
 else
-	if [ -f $out/msas/input_a3m ]
-	then
+	if [ -f $out/msas/input_a3m ]; then
 		rm -f $out/msas/uniref90_hits.a3m
 		rm -f $out/msas/mgnify_hits.a3m
 		rm -f $out/msas/bfd_uniclust_hits.a3m
@@ -287,24 +273,21 @@ else
 fi
 
 #-------- run jobs ---------#
-if [ $gpu -ge 0 ]
-then
+if [ $gpu -ge 0 ]; then
 	export CUDA_VISIBLE_DEVICES=$gpu
 fi
 export AF2_DATA_DIR=$data_root
 export AF2_HOME_DIR=$home
 #-> run amber or not
 amber_command=""
-if [ "$run_amber" != "1" ]
-then
+if [ "$run_amber" != "1" ]; then
 	amber_command="--no_amber"
 fi
 #-> run template or not
 run_template=""
-if [ "$template_date" == "-1" ]
-then
+if [ "$template_date" == "-1" ]; then
 	run_template="--no_template"
-        touch $out/msas/templates_hits.hhr
+	touch $out/msas/templates_hits.hhr
 else
 	run_template="--max_template_date=${template_date}"
 fi
@@ -319,11 +302,9 @@ ${python} ${home}/run_alphafold.py \
 	${run_template} ${amber_command}
 
 #-------- post-process -----#
-if [ "$a3m_type" == "all" ]
-then
+if [ "$a3m_type" == "all" ]; then
 	$home/util/post_proc.sh $out/ $python_env
 fi
 
 # ========= exit 0 =========== #
 exit 0
-
