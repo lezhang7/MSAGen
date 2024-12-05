@@ -1,9 +1,8 @@
-# MSAGen codebase
+# **MSA Generation with Seqs2Seqs Pretraining:Advancing Protein Structure Predictions**
 
 <img src="https://p.ipic.vip/9l6wrb.png" alt="method (1)" style="zoom: 25%;" />
 
-codebase for paper **MSA Generation with Seqs2Seqs Pretraining:
-Advancing Protein Structure Predictions** [arxiv]([https://arxiv.org/abs/2306.01824](https://openreview.net/pdf/fd516f23b421f9d03d5b978b03eded9900f0a462.pdf))
+#### [Paper](https://openreview.net/pdf/fd516f23b421f9d03d5b978b03eded9900f0a462.pdf)
 
 ## Pretrain
 
@@ -21,6 +20,7 @@ Advancing Protein Structure Predictions** [arxiv]([https://arxiv.org/abs/2306.01
       ```
 
    2. install dependency libraries
+
       1. `conda create -n msagen python=3.10`
       2. `pip install -r requirements.txt`
 
@@ -28,15 +28,15 @@ Advancing Protein Structure Predictions** [arxiv]([https://arxiv.org/abs/2306.01
 
 ## Inference
 
-1. download [checkpoints](https://drive.google.com/file/d/12cYk3WZDX18j-9xwYK9uu2kaGjmLuowB/view)
+1. download [checkpoints](https://drive.google.com/file/d/12cYk3WZDX18j-9xwYK9uu2kaGjmLuowB/view) (we are trying to retrieve the weight of the model)
 2. run inference by `bash scripts/inference.sh`
 
 > Note: all inference code is in inference.py*
 
 ## Evaluation
 
-| DATASET | MSA                                 | STRUCTURE                                                                                   |
-| ------- | ----------------------------------- | ------------------------------------------------------------------------------------------- |
+| DATASET | MSA                                 | STRUCTURE                                                    |
+| ------- | ----------------------------------- | ------------------------------------------------------------ |
 | CASP15  | <https://zenodo.org/record/8126538> | [google drive](https://github.com/deepmind/alphafold/blob/main/docs/casp15_predictions.zip) |
 
 ### Alphafold2 Prediction
@@ -47,8 +47,8 @@ Advancing Protein Structure Predictions** [arxiv]([https://arxiv.org/abs/2306.01
 
 ### LDDT
 
- 1. follow this document for lddt evaluation tool download <https://www.openstructure.org/>
- 2. follow this document for <https://www.openstructure.org/docs/2.4/mol/alg/lddt/> usage
+  1. follow this document for lddt evaluation tool download <https://www.openstructure.org/>
+  2. follow this document for <https://www.openstructure.org/docs/2.4/mol/alg/lddt/> usage
 
 ### Ensemble
 
