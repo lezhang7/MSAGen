@@ -11,11 +11,7 @@ import argparse
 from data.msa_dataset import MSADataSet
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%m/%d %H:%M:%S",
-    level=logging.INFO,
-)
+logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s", datefmt="%m/%d %H:%M:%S", level=logging.INFO)
 
 logger.setLevel(logging.INFO)
 
@@ -79,7 +75,6 @@ def msa_generate(args, model, dataset, msa_collator, tokenizer):
 
 
 def inference(args):
-
     config = T5Config.from_pretrained("./config/")
     tokenizer = T5Tokenizer.from_pretrained("./config/")
     msadata_collator = DataCollatorForMSA(tokenizer, max_len=512)
@@ -90,11 +85,24 @@ def inference(args):
         logger.warning("Loading a random model")
         model = MSAT5(config).to("cuda:0")
 
-    dataset = MSADataSet(data_dir=args.data_path, only_poor_msa=20)
+    # dataset = MSADataSet(data_dir=args.data_path, only_poor_msa=20)
+    dataset = MSADataSet(data_dir=args.data_path)
     msa_generate(args, model=model, msa_collator=msadata_collator, dataset=dataset, tokenizer=tokenizer)
 
 
 def parsing_arguments():
+    """参数说明
+
+    --do_train: 是否进行训练
+    --do_predict: 是否进行预测
+    --checkpoints: 模型的路径
+    --data_path: 数据的路径
+    --output_dir: 输出文件的路径
+    --mode: orphan or artificial
+    --repetition_penalty: 重复惩罚
+    --augmentation_times: 生成的质量相对于原始msa的倍数
+    --trials_times: 生成的次数
+    """
     parser = argparse.ArgumentParser()
     # general params
     parser.add_argument("--do_train", action="store_true", help="whether further fine-tune")

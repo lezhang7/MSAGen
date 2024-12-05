@@ -25,6 +25,7 @@ import torch
 from torch import nn
 from torch.nn import CrossEntropyLoss
 from torch.utils.checkpoint import checkpoint
+import torch.distributed as dist
 
 from transformers import LogitsProcessorList, StoppingCriteriaList, T5Config
 
@@ -44,8 +45,7 @@ from transformers.modeling_utils import PreTrainedModel, find_pruneable_heads_an
 from transformers.utils import logging
 from transformers.utils.model_parallel_utils import assert_device_map, get_device_map
 
-from model.msa_augmentor import GreedySearchDecoderOnlyOutput, GreedySearchEncoderDecoderOutput, MaxLengthCriteria
-
+from model.msa_augmentor import GreedySearchDecoderOnlyOutput, GreedySearchEncoderDecoderOutput, MaxLengthCriteria, MSAT5
 
 logger = logging.get_logger(__name__)
 

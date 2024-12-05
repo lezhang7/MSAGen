@@ -5,4 +5,5 @@ checkpoints/
 pretraining_datasets/
 *.ipynb
 *.tar.gz
-**/__pycache__
+__pycache__
+.vscode/
