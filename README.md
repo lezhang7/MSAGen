@@ -28,7 +28,7 @@
 
 ## Inference
 
-1. download [checkpoints](https://drive.google.com/file/d/12cYk3WZDX18j-9xwYK9uu2kaGjmLuowB/view) (we are trying to retrieve the weight of the model)
+1. download [checkpoints](https://drive.google.com/file/d/12cYk3WZDX18j-9xwYK9uu2kaGjmLuowB/view) (According to the latest confidentiality policy, the model weights will not be made public.)
 2. run inference by `bash scripts/inference.sh`
 
 > Note: all inference code is in inference.py*
